@@ -1,4 +1,3 @@
-#define DEHLI 4
 double dehli[5000][4] =
 {
 {  78.0,1009.0,  21.0,  17.0},

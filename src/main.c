@@ -8,17 +8,37 @@
   ******************************************************************************
 */
 
-
 #include "stm32f4xx.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 #include <math.h>
-#include "../data/dehli_raw.h"
-#include "../data/turbine_raw.h"
 
-#include "def.h"
-			
+//-------------------------------------------------------
+//SELECT DATA BEFORE BUILD
+#define DEHLI
+//-------------------------------------------------------
+
+//-------------------------------------------------------
+//SELECT POLYNOMIAL DEGREE
+#define POLY_DEGREE 1
+//-------------------------------------------------------
+
+
+#ifdef DEHLI
+	#include "../data/dehli.h"
+	#include "def_dehli.h"
+#endif
+
+#ifdef TURBINE
+	#include "../data/turbine.h"
+	#include "def_turbine.h"
+#endif
+
+
+
+double polynomial_regression_train_and_test(double data[SAMPLE_SIZE][DATASET_FEATURES], int feature_size, int sample_size, int degree);
+
 
 int main(void)
 {
