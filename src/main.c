@@ -25,9 +25,9 @@
 //-------------------------------------------------------
 
 
-#ifdef DEHLI
-	#include "../data/dehli.h"
-	#include "def_dehli.h"
+#ifdef delhi
+	#include "../data/delhi.h"
+	#include "def_delhi.h"
 #endif
 
 #ifdef TURBINE
