@@ -16,12 +16,12 @@
 
 //-------------------------------------------------------
 //SELECT DATA BEFORE BUILD
-#define DEHLI
+#define TURBINE
 //-------------------------------------------------------
 
 //-------------------------------------------------------
 //SELECT POLYNOMIAL DEGREE
-#define POLY_DEGREE 1
+#define POLY_DEGREE 3
 //-------------------------------------------------------
 
 
@@ -42,22 +42,26 @@ double polynomial_regression_train_and_test(double data[SAMPLE_SIZE][DATASET_FEA
 
 int main(void)
 {
-	struct timeval start, end;
-	long mtime, secs, usecs;
+	uint32_t start_time, end_time;
 	double rmse;
 
-	gettimeofday(&start, NULL);
+	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+	DWT->CYCCNT = 0;
+
+	start_time = DWT->CYCCNT;
 
 	rmse = polynomial_regression_train_and_test(DATASET, DATASET_FEATURES, SAMPLE_SIZE, POLY_DEGREE);
 
-	gettimeofday(&end, NULL);
-	secs  = end.tv_sec  - start.tv_sec;
-	usecs = end.tv_usec - start.tv_usec;
-	mtime = ((secs) * 1000000 + usecs) + 0.5;
+	end_time = DWT->CYCCNT;
 
-	printf("POLYNOMIAL REGRESSION: DEGREE %d\n", POLY_DEGREE);
-	printf("TIME ELAPSED: %lu\n", mtime);
-	printf("RMSE: %.2f\n", rmse);
+	uint32_t elapsed_clocks = end_time - start_time;
+
+	elapsed_clocks;
+	rmse;
+
+//	printf("POLYNOMIAL REGRESSION: DEGREE %d\n", POLY_DEGREE);
+//	printf("CLOCK CYCLES ELAPSED: %lu\n", end_time - start_time);
+//	printf("RMSE: %.2f\n", rmse);
 
 	while(1);
 }
@@ -108,14 +112,16 @@ double polynomial_regression_train_and_test(double data[SAMPLE_SIZE][DATASET_FEA
 	// Solve the system of equations to get coefficients
 	double *coefficients = malloc((degree + 1) * sizeof(double));
 	for (int i = 0; i <= degree; i++)
-	for (int j = i + 1; j <= degree; j++)
 	{
-		double ratio = x_transpose_x[i][j] / x_transpose_x[i][i];
-		for (int k = i; k <= degree; k++)
+		for (int j = i + 1; j <= degree; j++)
 		{
-			x_transpose_x[j][k] -= ratio * x_transpose_x[i][k];
+			double ratio = x_transpose_x[i][j] / x_transpose_x[i][i];
+			for (int k = i; k <= degree; k++)
+			{
+				x_transpose_x[j][k] -= ratio * x_transpose_x[i][k];
+			}
+			x_transpose_y[j] -= ratio * x_transpose_y[i];
 		}
-		x_transpose_y[j] -= ratio * x_transpose_y[i];
 	}
 
 	for (int i = degree; i >= 0; i--)
