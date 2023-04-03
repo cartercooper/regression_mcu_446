@@ -1,3 +1,3 @@
 #define SAMPLE_SIZE 250
-#define DATASET TURBINE
-#define DATASET_FEATURES 6
+#define DATASET turbine
+#define DATASET_FEATURES 4
