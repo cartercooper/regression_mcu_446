@@ -4,7 +4,7 @@
   * @author  Carter Cooper
   * @version V1.0
   * @date    27-January-2023
-  * @brief   Default main function.
+  * @brief   Polynomial Regression.
   ******************************************************************************
 */
 
@@ -45,6 +45,7 @@ int main(void)
 	uint32_t start_time, end_time;
 	float rmse;
 
+	//Enable clock cycle register and reset, then store the start of clock cycles.
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 	DWT->CYCCNT = 0;
 
@@ -54,8 +55,11 @@ int main(void)
 
 	end_time = DWT->CYCCNT;
 
+	//calculate elapsed clock cycles
 	uint32_t elapsed_clocks = end_time - start_time;
 
+
+	//"useless" statements, used to analyze memory during debugging
 	elapsed_clocks;
 	rmse;
 
