@@ -1,3 +1,3 @@
-#define SAMPLE_SIZE 1000
+#define SAMPLE_SIZE 250
 #define DATASET DELHI
 #define DATASET_FEATURES 4

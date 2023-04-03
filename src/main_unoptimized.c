@@ -37,7 +37,7 @@
 
 
 
-float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DATASET_FEATURES], int feature_size, int sample_size, int degree);
+float polynomial_regression_train_and_test(float data[SAMPLE_SIZE][DATASET_FEATURES], int feature_size, int sample_size, int degree);
 
 
 int main(void)
@@ -50,7 +50,7 @@ int main(void)
 
 	start_time = DWT->CYCCNT;
 
-	rmse = polynomial_regression_train_and_test_optimized(DATASET, DATASET_FEATURES, SAMPLE_SIZE, POLY_DEGREE);
+	rmse = polynomial_regression_train_and_test(DATASET, DATASET_FEATURES, SAMPLE_SIZE, POLY_DEGREE);
 
 	end_time = DWT->CYCCNT;
 
@@ -62,15 +62,11 @@ int main(void)
 	while(1);
 }
 
-float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DATASET_FEATURES], int feature_size, int sample_size, int degree)
+float polynomial_regression_train_and_test(float data[SAMPLE_SIZE][DATASET_FEATURES], int feature_size, int sample_size, int degree)
 {
     // Calculate the number of terms for the polynomial regression
-    int NUM_TERMS = 1;
-    for (int i = 0; i < feature_size - 1; i++)
-	{
-		NUM_TERMS *= (degree + 1);
-	}
-        
+    int NUM_TERMS = (int)pow(degree + 1, feature_size - 1);
+
     // Allocate memory for the feature matrix and label array
     float **x = malloc(sample_size * sizeof(float *));
     float *y = malloc(sample_size * sizeof(float));
@@ -90,15 +86,7 @@ float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DAT
             for (int feature = 0; feature < feature_size - 1; feature++)
             {
                 int power = temp_comb % (degree + 1);
-                float temp = 1;
-
-                // Replace pow with multiplication loop
-                for (int p = 0; p < power; p++)
-                {
-                    temp *= data[i][feature];
-                }
-
-                value *= temp;
+                value *= pow(data[i][feature], power);
                 temp_comb /= (degree + 1);
             }
 
@@ -129,25 +117,21 @@ float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DAT
         // Compute x transpose times x matrix
         for (int j = 0; j < NUM_TERMS; j++)
         {
-            float sum = 0;
+            x_transpose_x[i][j] = 0;
 
             for (int k = 0; k < sample_size; k++)
             {
-                sum += x_transpose[i][k] * x[k][j];
+                x_transpose_x[i][j] += x_transpose[i][k] * x[k][j];
             }
-
-            x_transpose_x[i][j] = sum;
         }
 
         // Compute x transpose times y matrix
-        float sum = 0;
+        x_transpose_y[i] = 0;
 
         for (int j = 0; j < sample_size; j++)
         {
-            sum += x_transpose[i][j] * y[j];
+            x_transpose_y[i] += x_transpose[i][j] * y[j];
         }
-
-        x_transpose_y[i] = sum;
     }
 
     // Allocate memory for coefficients
@@ -156,7 +140,7 @@ float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DAT
     // Gaussian elimination to solve the system of equations
     for (int i = 0; i < NUM_TERMS; i++)
     {
-         for (int j = i + 1; j < NUM_TERMS; j++)
+        for (int j = i + 1; j < NUM_TERMS; j++)
         {
             float ratio = x_transpose_x[j][i] / x_transpose_x[i][i];
 
@@ -166,7 +150,8 @@ float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DAT
             }
 
             x_transpose_y[j] -= ratio * x_transpose_y[i];
-        }
+		}
+
     }
 
     // Back-substitution to find the coefficients
@@ -194,10 +179,10 @@ float polynomial_regression_train_and_test_optimized(float data[SAMPLE_SIZE][DAT
             y_pred += coefficients[j] * x[i][j];
         }
 
-        rmse += (y_pred - data[i][feature_size - 1]) * (y_pred - data[i][feature_size - 1]);
+        rmse += pow(y_pred - data[i][feature_size - 1], 2);
     }
 
-    rmse = sqrtf(rmse / sample_size);
+    rmse = sqrt(rmse / sample_size);
 
     // Free memory allocated for arrays
     for (int i = 0; i < sample_size; i++)
